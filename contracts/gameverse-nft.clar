@@ -230,7 +230,7 @@
   (begin
     (asserts! (is-protocol-admin tx-sender) ERR-NOT-AUTHORIZED)
     (asserts! (and (>= entry-fee u1) (<= entry-fee u1000)) ERR-INVALID-FEE)
-    (asserts! (and (>= max-entries u1) (<= max-entries u500)) ERR-INVALID-ENTRIES)
+    (asserts! (and (>= max-entries u1) (<= max-entries u1000)) ERR-INVALID-ENTRIES)
     
     (var-set protocol-fee entry-fee)
     (var-set max-leaderboard-entries max-entries)
@@ -381,7 +381,7 @@
       
       ;; Level up validation
       (asserts! 
-        (or (not should-level-up) (<= new-level MAX-LEVEL))
+        (<= new-level MAX-LEVEL)
         ERR-MAX-LEVEL-REACHED
       )
       
@@ -520,9 +520,12 @@
 )
 
 (define-private (calculate-reward (score uint))
-  (if (and (> score u100) (<= score u10000))
-    (* score u10)
+  (if (<= score u100)
     u0
+    (if (<= score u10000)
+      (* score u10)
+      u0
+    )
   )
 )
 
@@ -545,6 +548,7 @@
     (and
       (<= gained-experience max-allowed-gain)
       (<= new-total-experience (* MAX-EXPERIENCE-PER-LEVEL current-level))
+      (< current-experience (* MAX-EXPERIENCE-PER-LEVEL current-level))
     )
   )
 )
